@@ -24,7 +24,7 @@ class Game:
         Implementation of the AC-3 algorithm
         @return: true if the constraints can be satisfied, false otherwise
         """
-        return self.ac3()
+        return self.backtrack_search()
 
 
     def ac3(self):
@@ -32,9 +32,6 @@ class Game:
         start = time.time()
         q = PriorityQueue()
         # q = []
-
-        # def add_arc(x, y):
-        #     q.append((x, y))
 
         for row in range(9):
             for col in range(9):
@@ -45,7 +42,7 @@ class Game:
         # While queue is not empty
         while not q.empty():
             # Get the first element of the queue
-            # x, y = q.pop(0)
+            # x, y = q.pop()
             item = q.get()
             x, y = item.payload
             if self.revise(x, y):
@@ -62,10 +59,13 @@ class Game:
     
     def add_arc(self, x, y, q):
         # priority = (x.get_domain_size()) # Minimum domain values heuristic
-        priority = sum([b.get_domain_size() for b in y.get_neighbours()]) # Heuristic for 
+        priority = sum([a.get_domain_size() for a in x.get_neighbours()]) # Heuristic for prioritisng arcs to finished variables
         payload = (x, y)
         wrapper = PrioritizedItem(priority, payload)
         q.put(wrapper)
+    
+    # def add_arc(self, x, y, q):
+    #     q.append((x, y))
 
     def revise(self, x, y):
         self.revisions += 1
@@ -95,21 +95,22 @@ class Game:
         if self.valid_solution():
             return True
         
-        var = self.select_unsigned_var(board)
+        var = self.select_unassigned_var(board)
         for number in var.get_domain():
             inferences = []
             if all([number != x.value for x in var.get_neighbours()]):
                 var.value = number
                 inferences = self.inferences(var, number)
-                if inferences:
-                    for k, n in inferences:
-                        k.get_domain().remove(n)
+                if inferences != None:
+                    for k in inferences:
+                        k.get_domain().remove(number)
                     result = self.backtracking(board)
                     if result:
                         return result
-                    var.value = 0
-                    for k, n in inferences:
-                        k.get_domain().append(n)
+                var.value = 0
+                if inferences:
+                    for k in inferences:
+                        k.get_domain().append(number)
         return False
                     
 
@@ -118,16 +119,19 @@ class Game:
         inferences = []
         for k in var.get_neighbours():
             if number in k.get_domain():
-                inferences.append((k, number))
+                inferences.append(k)
                 if k.get_domain_size() == 1:
                     return None
         return inferences
     
-    def select_unsigned_var(self, board):
+    def select_unassigned_var(self, board):
         for row in range(9):
             for col in range(9):
                 if board[row][col].value == 0:
                     return board[row][col]
+        
+
+            
 
 
 

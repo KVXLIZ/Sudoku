@@ -58,27 +58,22 @@ class Sudoku:
         """
         for row in range(9):
             for col in range(9):
-                print(f'Node {row, col}')
                 neighbours = []
                 # Row neighbors
                 for c in range(9):
                     if c != col:
-                        print(row, c)
                         neighbours.append(grid[row][c])
                 # Column neighbors
                 for r in range(9):
                     if r != row:
-                        print(r, col)
                         neighbours.append(grid[r][col])
                 # Block neighbors
                 start_row, start_col = 3 * (row // 3), 3 * (col // 3)
                 for r in range(start_row, start_row + 3):
                     for c in range(start_col, start_col + 3):
                         if r != row and c != col:
-                            print(r, c)
                             neighbours.append(grid[r][c])
                 # Set the neighbours for this field
-                print('----------------')
                 grid[row][col].set_neighbours(list(neighbours))
 
     
